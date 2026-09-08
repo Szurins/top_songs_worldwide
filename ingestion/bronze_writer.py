@@ -8,7 +8,7 @@ from botocore.exceptions import ClientError
 
 class BronzeJsonWriter:
     """
-    Writes raw Spotify Top 50 records directly to an Amazon S3 Bucket in JSON format.
+    Writes raw Top 50 records directly to an Amazon S3 Bucket in JSON format.
     Fails immediately if S3 configuration, credentials, or permissions are invalid.
     No local fallback saving!
     """
@@ -20,7 +20,7 @@ class BronzeJsonWriter:
         "my-top-songs-data-bucket"
     }
 
-    def __init__(self, s3_bucket: Optional[str] = None, s3_prefix: str = "raw/spotify_top_songs"):
+    def __init__(self, s3_bucket: Optional[str] = None, s3_prefix: str = "raw/top_songs"):
         self.logger = logging.getLogger("BronzeWriter.S3")
         
         bucket_name = (s3_bucket or os.getenv("S3_BUCKET_NAME", "")).strip()
@@ -53,7 +53,7 @@ class BronzeJsonWriter:
 
         self.s3_client = boto3.client("s3", **session_kwargs)
 
-    def write_to_bronze(self, records: List[Dict[str, Any]]):
+    def write_to_bronze(self, records: List[Dict[str, Any]], platform: str):
         if not records:
             raise ValueError("[ERROR] No track records available to upload to S3. Execution stopped.")
 
@@ -64,18 +64,19 @@ class BronzeJsonWriter:
         payload = {
             "ingested_at": now.isoformat(),
             "ingested_date": date_str,
-            "platform": "spotify",
+            "platform": platform,
             "record_count": len(records),
             "tracks": records
         }
 
-        filename = f"spotify_top_songs_{date_str}_{timestamp_str}.json"
+        filename = f"{platform}_top_songs_{date_str}_{timestamp_str}.json"
         json_data = json.dumps(payload, indent=2, ensure_ascii=False)
 
-        s3_key = f"{self.s3_prefix}/{date_str}/{filename}"
+        dynamic_prefix = f"{self.s3_prefix}/{platform}_top_songs" if self.s3_prefix == "raw/top_songs" else self.s3_prefix
+        s3_key = f"{dynamic_prefix}/{date_str}/{filename}"
         s3_uri = f"s3://{self.s3_bucket}/{s3_key}"
         
-        self.logger.info(f"Uploading {len(records)} Spotify tracks to Amazon S3: {s3_uri}")
+        self.logger.info(f"Uploading {len(records)} {platform} tracks to Amazon S3: {s3_uri}")
         
         try:
             self.s3_client.put_object(
@@ -84,7 +85,7 @@ class BronzeJsonWriter:
                 Body=json_data.encode("utf-8"),
                 ContentType="application/json"
             )
-            self.logger.info(f"[SUCCESS] Spotify JSON uploaded to Amazon S3: {s3_uri}")
+            self.logger.info(f"[SUCCESS] {platform} JSON uploaded to Amazon S3: {s3_uri}")
         except ClientError as e:
             self.logger.error(f"[FAILURE] S3 Upload failed ({e}). Execution stopped.")
             raise RuntimeError(f"S3 Upload failed: {e}") from e

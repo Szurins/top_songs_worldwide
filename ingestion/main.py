@@ -13,22 +13,32 @@ if str(project_root) not in sys.path:
 load_dotenv(dotenv_path=project_root / ".env")
 
 from ingestion.fetchers.spotify import SpotifyFetcher
+from ingestion.fetchers.youtube_music import YouTubeMusicFetcher
 from ingestion.bronze_writer import BronzeJsonWriter
 
 def main():
     logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
-    logging.info("Starting Spotify Top 50 JSON Ingestion Pipeline...")
-
-    # Fetch Spotify data
-    fetcher = SpotifyFetcher()
-    records = fetcher.fetch_top_50()
+    logging.info("Starting Spotify & YouTube Music Top 50 JSON Ingestion Pipeline...")
 
     # Determine Amazon S3 Bucket from environment
     s3_bucket = os.getenv("S3_BUCKET_NAME")
-
-    # Upload directly to Amazon S3 Bucket (or local storage) in JSON format
     writer = BronzeJsonWriter(s3_bucket=s3_bucket)
-    writer.write_to_bronze(records)
+
+    # Fetch Spotify data
+    try:
+        spotify_fetcher = SpotifyFetcher()
+        spotify_records = spotify_fetcher.fetch_top_50()
+        writer.write_to_bronze(spotify_records, platform="spotify")
+    except Exception as e:
+        logging.error(f"Failed to fetch Spotify data: {e}")
+
+    # Fetch YouTube Music data
+    try:
+        youtube_fetcher = YouTubeMusicFetcher()
+        youtube_records = youtube_fetcher.fetch_top_50()
+        writer.write_to_bronze(youtube_records, platform="youtube_music")
+    except Exception as e:
+        logging.error(f"Failed to fetch YouTube Music data: {e}")
 
 if __name__ == "__main__":
     main()
