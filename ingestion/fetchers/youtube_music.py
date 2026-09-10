@@ -14,12 +14,16 @@ class YouTubeMusicFetcher(BasePlatformFetcher):
     Fetcher for YouTube Music Top 50 Global Songs.
     Extracts live daily top tracks via Kworb Live YouTube Global Daily Chart feed.
     """
-    def __init__(self, api_key: str = None):
-        super().__init__(platform_name="youtube_music")
+    def __init__(self, api_key: str = None, dry_run: bool = False):
+        super().__init__(platform_name="youtube_music", dry_run=dry_run)
         self.api_key = api_key or os.getenv("YOUTUBE_API_KEY")
 
     def fetch_top_50(self) -> List[Dict[str, Any]]:
         self.logger.info("Fetching YouTube Music Top 50 Global tracks...")
+
+        if self.dry_run:
+            self.logger.info("[DRY RUN] Skipping live fetch, returning mock data.")
+            return self._generate_fallback_data()
 
         # 1. Primary Strategy: Live YouTube Global Daily Chart Extractor
         chart_tracks = self._fetch_live_youtube_global_chart()

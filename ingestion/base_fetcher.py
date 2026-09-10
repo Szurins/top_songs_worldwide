@@ -13,9 +13,10 @@ class BasePlatformFetcher(ABC):
     Abstract Base Class for Platform Fetchers with built-in retry logic,
     rate-limit handling, and standardized schema formatting.
     """
-    def __init__(self, platform_name: str, max_retries: int = 5, backoff_factor: float = 1.0):
+    def __init__(self, platform_name: str, max_retries: int = 5, backoff_factor: float = 1.0, dry_run: bool = False):
         self.platform_name = platform_name
         self.logger = logging.getLogger(f"Fetcher.{platform_name}")
+        self.dry_run = dry_run
         self.session = self._create_retry_session(max_retries, backoff_factor)
 
     def _create_retry_session(self, retries: int, backoff_factor: float) -> requests.Session:

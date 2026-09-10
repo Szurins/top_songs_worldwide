@@ -14,8 +14,8 @@ class SpotifyFetcher(BasePlatformFetcher):
     Fetcher for Spotify Top 50 Global Songs.
     Extracts live daily top tracks via Spotify Web API or Kworb Live Spotify Global Daily Chart feed.
     """
-    def __init__(self, client_id: str = None, client_secret: str = None):
-        super().__init__(platform_name="spotify")
+    def __init__(self, client_id: str = None, client_secret: str = None, dry_run: bool = False):
+        super().__init__(platform_name="spotify", dry_run=dry_run)
         self.client_id = client_id or os.getenv("SPOTIFY_CLIENT_ID")
         self.client_secret = client_secret or os.getenv("SPOTIFY_CLIENT_SECRET")
         self.access_token = None
@@ -39,6 +39,10 @@ class SpotifyFetcher(BasePlatformFetcher):
 
     def fetch_top_50(self) -> List[Dict[str, Any]]:
         self.logger.info("Fetching Spotify Top 50 Global tracks...")
+
+        if self.dry_run:
+            self.logger.info("[DRY RUN] Skipping live fetch, returning mock data.")
+            return self._generate_fallback_data()
 
         # 1. Primary Strategy: Live Spotify Global Daily Chart Extractor
         chart_tracks = self._fetch_live_spotify_global_chart()
