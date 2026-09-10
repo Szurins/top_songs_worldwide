@@ -15,6 +15,7 @@ load_dotenv(dotenv_path=project_root / ".env")
 from ingestion.fetchers.spotify import SpotifyFetcher
 from ingestion.fetchers.youtube_music import YouTubeMusicFetcher
 from ingestion.fetchers.apple_music import AppleMusicFetcher
+from ingestion.fetchers.soundcloud import SoundcloudFetcher
 from ingestion.bronze_writer import BronzeJsonWriter
 
 import argparse
@@ -25,7 +26,7 @@ def main():
     args = parser.parse_args()
 
     logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
-    logging.info(f"Starting Spotify, YouTube Music & Apple Music Top 50 JSON Ingestion Pipeline... (Dry run: {args.dry_run})")
+    logging.info(f"Starting Spotify, YouTube Music, Apple Music & SoundCloud Top 50 JSON Ingestion Pipeline... (Dry run: {args.dry_run})")
 
     # Determine Amazon S3 Bucket from environment
     s3_bucket = os.getenv("S3_BUCKET_NAME")
@@ -54,6 +55,14 @@ def main():
         writer.write_to_bronze(apple_records, platform="apple_music")
     except Exception as e:
         logging.error(f"Failed to fetch Apple Music data: {e}")
+
+    # Fetch SoundCloud data
+    try:
+        soundcloud_fetcher = SoundcloudFetcher(dry_run=args.dry_run)
+        soundcloud_records = soundcloud_fetcher.fetch_top_50()
+        writer.write_to_bronze(soundcloud_records, platform="soundcloud")
+    except Exception as e:
+        logging.error(f"Failed to fetch SoundCloud data: {e}")
 
 if __name__ == "__main__":
     main()
