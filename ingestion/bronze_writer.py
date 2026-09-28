@@ -59,7 +59,6 @@ class BronzeJsonWriter:
 
         now = datetime.now(timezone.utc)
         date_str = now.strftime("%Y-%m-%d")
-        timestamp_str = now.strftime("%Y%m%d_%H%M%S")
 
         payload = {
             "ingested_at": now.isoformat(),
@@ -69,7 +68,7 @@ class BronzeJsonWriter:
             "tracks": records
         }
 
-        filename = f"{platform}_top_songs_{date_str}_{timestamp_str}.json"
+        filename = f"{platform}_top_songs_{date_str}.json"
         json_data = json.dumps(payload, indent=2, ensure_ascii=False)
 
         dynamic_prefix = f"{self.s3_prefix}/{platform}_top_songs" if self.s3_prefix == "raw/top_songs" else self.s3_prefix
