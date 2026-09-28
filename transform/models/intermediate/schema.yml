@@ -1,0 +1,43 @@
+version: 2
+
+models:
+  - name: int_tracks_unified
+    description: "Consolidated intermediate model containing all top tracks across all platforms"
+    columns:
+      - name: record_id
+        description: "Unique hash identifier for each platform-track-date record"
+        tests:
+          - not_null
+          - unique
+      - name: platform
+        description: "Streaming platform (spotify, apple_music, youtube_music, soundcloud)"
+        tests:
+          - not_null
+      - name: track_name
+        description: "Track title"
+        tests:
+          - not_null
+      - name: rank
+        description: "Chart rank"
+        tests:
+          - not_null
+      - name: ingested_date
+        description: "Date the chart was ingested"
+        tests:
+          - not_null
+
+  - name: int_artist_daily_presence
+    description: "Intermediate artist metrics aggregated across streaming platforms per day"
+    columns:
+      - name: artist_name
+        description: "Artist name"
+        tests:
+          - not_null
+      - name: ingested_date
+        description: "Date of observation"
+        tests:
+          - not_null
+      - name: total_charting_tracks
+        description: "Number of songs charting across all platforms on this day"
+        tests:
+          - not_null

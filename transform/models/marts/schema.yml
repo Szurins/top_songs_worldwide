@@ -1,0 +1,19 @@
+version: 2
+
+models:
+  - name: fct_daily_top_songs
+    description: "Daily facts table of worldwide top charting songs across streaming services"
+    columns:
+      - name: record_id
+        description: "Primary key surrogate hash"
+        tests:
+          - unique
+          - not_null
+      - name: platform
+        description: "Streaming platform"
+        tests:
+          - not_null
+      - name: rank
+        description: "Chart rank"
+        tests:
+          - not_null

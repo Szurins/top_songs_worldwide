@@ -1,0 +1,15 @@
+version: 2
+
+sources:
+  - name: bronze
+    database: top_songs_worldwide
+    schema: bronze
+    tables:
+      - name: spotify_songs
+        description: "Raw daily top 50 songs ingested from Spotify"
+      - name: apple_music_songs
+        description: "Raw daily top 50 songs ingested from Apple Music"
+      - name: youtube_music_songs
+        description: "Raw daily top 50 songs ingested from YouTube Music"
+      - name: soundcloud_songs
+        description: "Raw daily top 50 songs ingested from SoundCloud"

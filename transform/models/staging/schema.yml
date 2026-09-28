@@ -1,0 +1,50 @@
+version: 2
+
+models:
+  - name: stg_spotify_songs
+    description: "Staged individual tracks from Spotify Daily Top 50"
+    columns:
+      - name: platform_track_id
+        description: "Spotify internal track identifier"
+        tests:
+          - not_null
+      - name: rank
+        description: "Rank on the daily chart"
+        tests:
+          - not_null
+
+  - name: stg_apple_music_songs
+    description: "Staged individual tracks from Apple Music Top 50"
+    columns:
+      - name: platform_track_id
+        description: "Apple Music internal track identifier"
+        tests:
+          - not_null
+      - name: rank
+        description: "Rank on the daily chart"
+        tests:
+          - not_null
+
+  - name: stg_youtube_music_songs
+    description: "Staged individual tracks from YouTube Music Top 50"
+    columns:
+      - name: platform_track_id
+        description: "YouTube Music video/track identifier"
+        tests:
+          - not_null
+      - name: rank
+        description: "Rank on the daily chart"
+        tests:
+          - not_null
+
+  - name: stg_soundcloud_songs
+    description: "Staged individual tracks from SoundCloud Top 50"
+    columns:
+      - name: platform_track_id
+        description: "SoundCloud track identifier"
+        tests:
+          - not_null
+      - name: rank
+        description: "Rank on the daily chart"
+        tests:
+          - not_null
